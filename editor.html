@@ -199,11 +199,11 @@
   <ol style="font-size: 0.95em;">
     <li>Ga naar <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a> en log in.</li>
     <li>Geef een naam, bv. <em>mariekestoel-editor</em>.</li>
-    <li>Bij <em>Expiration</em>: kies een vervaldatum.</li>
+    <li>Bij <em>Expiration</em>: kies "No expiration" (of een lange tijd).</li>
     <li>Bij <em>Repository access</em>: kies "Only select repositories" en selecteer deze website-repository.</li>
     <li>Bij <em>Repository permissions</em>: zoek <em>Contents</em> en zet die op <em>Read and write</em>. Niets anders.</li>
     <li>Klik onderaan <em>Generate token</em> en kopieer de lange code.</li>
-    <li>Plak de code hierboven en klik <em>Token veilig bewaren. Niet op de computer of email of telefoon bewaren.</em>.</li>
+    <li>Plak de code hierboven en klik <em>Token bewaren</em>.</li>
   </ol>
 </section>
 
@@ -262,9 +262,9 @@
 /* ================================================================
  * CONFIGURATION — edit these once at install time, then forget.
  * ================================================================ */
-const REPO_OWNER  = 'mariekestoel';   // your GitHub username
-const REPO_NAME   = 'mariekestoel.github.io';   // the repository name
-const REPO_BRANCH = 'main';        // usually 'main' (sometimes 'master')
+const REPO_OWNER  = 'mariekestoel';                // your GitHub username
+const REPO_NAME   = 'mariekestoel.github.io';      // the repository name
+const REPO_BRANCH = 'main';                        // usually 'main' (sometimes 'master')
 /* ================================================================ */
 
 const PAT_STORAGE_KEY = 'mariekestoel_github_pat';
@@ -428,6 +428,18 @@ function render() {
     const chev = el('span', { class: 'chevron' }, '▶');
     const title = el('h2', null, year.label);
     const actions = el('div', { class: 'year-actions' });
+    const upBtn = el('button', {
+      class: 'small',
+      title: 'Jaar naar boven',
+      onclick: (e) => { e.stopPropagation(); moveYear(yi, -1); }
+    }, '↑');
+    if (yi === 0) upBtn.disabled = true;
+    const downBtn = el('button', {
+      class: 'small',
+      title: 'Jaar naar beneden',
+      onclick: (e) => { e.stopPropagation(); moveYear(yi, +1); }
+    }, '↓');
+    if (yi === state.data.length - 1) downBtn.disabled = true;
     const editBtn = el('button', {
       class: 'small',
       onclick: (e) => { e.stopPropagation(); openYearDialog(yi); }
@@ -436,6 +448,8 @@ function render() {
       class: 'small danger',
       onclick: (e) => { e.stopPropagation(); deleteYear(yi); }
     }, 'Verwijderen');
+    actions.appendChild(upBtn);
+    actions.appendChild(downBtn);
     actions.appendChild(editBtn);
     actions.appendChild(delBtn);
     header.appendChild(chev);
@@ -462,6 +476,20 @@ function render() {
         text.appendChild(linkSpan);
       }
       const actions2 = el('div', { class: 'entry-actions' });
+      const eUp = el('button', {
+        class: 'small',
+        title: 'Naar boven',
+        onclick: () => moveEntry(yi, ri, -1),
+      }, '↑');
+      if (ri === 0) eUp.disabled = true;
+      const eDown = el('button', {
+        class: 'small',
+        title: 'Naar beneden',
+        onclick: () => moveEntry(yi, ri, +1),
+      }, '↓');
+      if (ri === (year.rows || []).length - 1) eDown.disabled = true;
+      actions2.appendChild(eUp);
+      actions2.appendChild(eDown);
       actions2.appendChild(el('button', {
         class: 'small',
         onclick: () => openEntryDialog(yi, ri),
@@ -523,7 +551,7 @@ $('ef-save').onclick = () => {
     alert('Vul minstens een datum of beschrijving in.');
     return;
   }
-  if (ri === null) state.data[yi].rows.push(row);
+  if (ri === null) state.data[yi].rows.unshift(row);    // new entry → top of the year
   else             state.data[yi].rows[ri] = row;
   state.dirty = true;
   $('entry-dialog').close();
@@ -604,6 +632,26 @@ function deleteYear(yi) {
   if (!confirm(`Het hele blok "${year.label}" verwijderen?` +
                (n > 0 ? ` Dit verwijdert ook ${n} concert(en).` : ''))) return;
   state.data.splice(yi, 1);
+  state.dirty = true;
+  render();
+}
+
+/* ---------- Reordering ---------- */
+function moveEntry(yi, ri, direction) {
+  const rows = state.data[yi].rows;
+  const ni = ri + direction;
+  if (ni < 0 || ni >= rows.length) return;
+  [rows[ri], rows[ni]] = [rows[ni], rows[ri]];
+  state.dirty = true;
+  render();
+  // Keep this year-block expanded after re-render
+  const block = document.querySelectorAll('.year-block')[yi];
+  if (block) block.classList.add('expanded');
+}
+function moveYear(yi, direction) {
+  const ni = yi + direction;
+  if (ni < 0 || ni >= state.data.length) return;
+  [state.data[yi], state.data[ni]] = [state.data[ni], state.data[yi]];
   state.dirty = true;
   render();
 }
