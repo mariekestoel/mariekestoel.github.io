@@ -447,3 +447,82 @@ html>body #navBar li {border-bottom: none;}
 
 
 
+
+
+/***********************************************/
+/* Mobile overrides — only apply on narrow      */
+/* screens (≤768px). Desktop is unaffected.     */
+/***********************************************/
+@media (max-width: 768px) {
+
+  /* Let the container span (almost) the full screen */
+  div#container {
+    width: 100%;
+    padding: 5px;
+  }
+
+  /* Menu images shrink to fit their cells so all 5 stay visible */
+  #menubar img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Stack the main 2-column layout vertically. The selectors target only
+     the direct children of #maintable, so nested tables (#agendatable) are
+     not affected. */
+  #maintable,
+  #maintable > tbody,
+  #maintable > tbody > tr,
+  #maintable > tbody > tr > td,
+  #maintable > tbody > tr > th,
+  #maintable > tr,
+  #maintable > tr > td,
+  #maintable > tr > th {
+    display: block;
+    width: auto !important;
+    max-width: 100%;
+  }
+
+  /* Decorative left ornament image: hide on phones */
+  #ornament-cell {
+    display: none;
+  }
+
+  /* Agenda table fills the available width on mobile */
+  #agendatable {
+    width: 100%;
+  }
+
+  /* Main rotating picture in the right column scales to fit */
+  #beeldplaatsing img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Contact block: reduce the desktop 70px left-indent */
+  #adres {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+
+/***********************************************/
+/* Mobile-only override.                        */
+/* The <meta viewport> in index.htm renders     */
+/* the page at 850px wide and the device scales */
+/* it to fit. Below we let the container use    */
+/* the full 850px instead of just 80% of it,    */
+/* so the side whitespace isn't wasted.         */
+/* Desktop browsers ignore <meta viewport>, so  */
+/* they keep the original 80% container.        */
+/***********************************************/
+@media (max-width: 900px) {
+  div#container {
+    width: 100%;
+    padding: 5px;
+  }
+  div#menubar {
+    width: 100%;
+  }
+}
