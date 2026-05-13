@@ -199,11 +199,11 @@
   <ol style="font-size: 0.95em;">
     <li>Ga naar <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a> en log in.</li>
     <li>Geef een naam, bv. <em>mariekestoel-editor</em>.</li>
-    <li>Bij <em>Expiration</em>: kies "No expiration" (of een lange tijd).</li>
+    <li>Bij <em>Expiration</em>: kies een vervaldatum.</li>
     <li>Bij <em>Repository access</em>: kies "Only select repositories" en selecteer deze website-repository.</li>
     <li>Bij <em>Repository permissions</em>: zoek <em>Contents</em> en zet die op <em>Read and write</em>. Niets anders.</li>
     <li>Klik onderaan <em>Generate token</em> en kopieer de lange code.</li>
-    <li>Plak de code hierboven en klik <em>Token bewaren</em>.</li>
+    <li>Plak de code hierboven en klik <em>Token veilig bewaren. Niet op de computer of email of telefoon bewaren.</em>.</li>
   </ol>
 </section>
 
@@ -262,8 +262,8 @@
 /* ================================================================
  * CONFIGURATION — edit these once at install time, then forget.
  * ================================================================ */
-const REPO_OWNER  = 'CHANGE_ME';   // your GitHub username
-const REPO_NAME   = 'CHANGE_ME';   // the repository name
+const REPO_OWNER  = 'mariekestoel';   // your GitHub username
+const REPO_NAME   = 'mariekestoel.github.io';   // the repository name
 const REPO_BRANCH = 'main';        // usually 'main' (sometimes 'master')
 /* ================================================================ */
 
@@ -360,31 +360,57 @@ async function ghPut(path, contentBase64, message, sha) {
   return r.json();
 }
 
-/* ---------- Load agenda ---------- */
+/* ---------- Load agenda (always via plain fetch — never uses the GitHub API,
+   so it works regardless of token/config state) ---------- */
 async function loadAgenda() {
   setStatus('Bezig met laden…', 'info');
   try {
-    // Try authenticated GitHub API first (needed for getting the SHA)
+    const r = await fetch('agenda.json', { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    state.data = await r.json();
+    state.fileSha = null;   // fetched lazily right before saving
+    state.dirty = false;
     if (getPat()) {
-      const res = await ghGet('agenda.json');
-      state.data = JSON.parse(base64ToUtf8(res.content));
-      state.fileSha = res.sha;
-      setStatus(`Verbonden met GitHub. ${countEntries()} concerten geladen.`, 'success');
+      setStatus(`${countEntries()} concerten geladen. Token aanwezig: wijzigingen kunnen direct op GitHub bewaard worden.`, 'success');
       $('save-github').disabled = false;
     } else {
-      // Fall back to fetching the public file (no SHA, can't save to GitHub)
-      const r = await fetch('agenda.json', { cache: 'no-cache' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      state.data = await r.json();
-      state.fileSha = null;
-      setStatus(`${countEntries()} concerten geladen. Geen token: u kunt alleen downloaden. ` +
-                `Stel een token in onder "Instellingen" om direct op GitHub te bewaren.`, 'warning');
+      setStatus(`${countEntries()} concerten geladen. Zonder token kunt u alleen downloaden. Stel een token in onder "Instellingen" om direct op GitHub te bewaren.`, 'warning');
       $('save-github').disabled = true;
     }
-    state.dirty = false;
     render();
   } catch (err) {
     setStatus('Laden mislukt: ' + err.message, 'error');
+  }
+}
+
+/* Quick check whether the saved token actually works and can reach this repo.
+   Used when the maintainer enters their token, to give immediate feedback. */
+async function testTokenAccess() {
+  const pat = getPat();
+  if (!pat) return { ok: false, msg: 'Geen token ingesteld.' };
+  // 1) Token valid at all?
+  try {
+    const userR = await fetch(GH_API + '/user', {
+      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
+    });
+    if (!userR.ok) {
+      return { ok: false, msg: `Token werkt niet (HTTP ${userR.status}). Maak een nieuwe aan.` };
+    }
+    const user = await userR.json();
+    // 2) Repo accessible with this token?
+    const repoR = await fetch(`${GH_API}/repos/${REPO_OWNER}/${REPO_NAME}`, {
+      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
+    });
+    if (!repoR.ok) {
+      return {
+        ok: false,
+        msg: `Token geldig (ingelogd als ${user.login}), maar geen toegang tot ${REPO_OWNER}/${REPO_NAME} (HTTP ${repoR.status}). ` +
+             `Controleer dat het token toegang heeft tot deze repository met "Contents: Read and write".`,
+      };
+    }
+    return { ok: true, msg: `✓ Token werkt. Ingelogd als ${user.login}, toegang tot ${REPO_OWNER}/${REPO_NAME}.` };
+  } catch (err) {
+    return { ok: false, msg: 'Verbinding mislukt: ' + err.message };
   }
 }
 
@@ -592,11 +618,23 @@ $('save-github').onclick = async () => {
     return;
   }
   const btn = $('save-github');
-  btn.disabled = true; btn.textContent = 'Bezig met opslaan…';
+  btn.disabled = true; btn.textContent = 'SHA ophalen…';
   try {
+    // Always fetch a fresh SHA right before saving — robust against concurrent edits
+    // and means we never have to fetch SHA on load.
+    let sha;
+    try {
+      const res = await ghGet('agenda.json');
+      sha = res.sha;
+    } catch (err) {
+      throw new Error('Kon agenda.json niet bereiken via GitHub API. ' +
+        'Controleer de constanten REPO_OWNER en REPO_NAME bovenaan in editor.html, ' +
+        'en dat het token toegang heeft tot deze repository. Details: ' + err.message);
+    }
+    btn.textContent = 'Bezig met opslaan…';
     const json = JSON.stringify(state.data, null, 2);
     const result = await ghPut('agenda.json', utf8ToBase64(json),
-                               'Update agenda (via editor)', state.fileSha);
+                               'Update agenda (via editor)', sha);
     state.fileSha = result.content.sha;
     state.dirty = false;
     setStatus('Opgeslagen op GitHub. De website wordt binnen een paar minuten bijgewerkt.', 'success');
@@ -644,7 +682,7 @@ function refreshPatStatus() {
     $('pat-input').value = '';
   }
 }
-$('pat-save').onclick = () => {
+$('pat-save').onclick = async () => {
   const v = $('pat-input').value.trim();
   if (!v || v.startsWith('•')) {
     alert('Plak eerst een echte token in het tekstvak.');
@@ -652,6 +690,15 @@ $('pat-save').onclick = () => {
   }
   setPat(v);
   refreshPatStatus();
+  // Quick test: does the token actually work and reach the configured repo?
+  const status = $('pat-status');
+  status.innerHTML = 'Token testen…';
+  const result = await testTokenAccess();
+  if (result.ok) {
+    status.innerHTML = '<span style="color: #080;">' + result.msg + '</span>';
+  } else {
+    status.innerHTML = '<span style="color: #a00;">⚠ ' + result.msg + '</span>';
+  }
   loadAgenda();
 };
 $('pat-clear').onclick = () => {
