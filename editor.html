@@ -6,236 +6,216 @@
 <title>Site-editor — Marieke Stoel</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    margin: 0;
-    background: #f4f6f8;
-    color: #222;
-    line-height: 1.4;
-  }
-  header {
-    background: #006699;
-    color: #fff;
-    padding: 12px 20px;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+         margin: 0; background: #f4f6f8; color: #222; line-height: 1.4; }
+  header { background: #006699; color: #fff; padding: 12px 20px; }
   header h1 { margin: 0; font-size: 1.4em; font-weight: 500; }
-  nav { background: #fff; border-bottom: 1px solid #ddd; padding: 0 20px; }
-  nav button {
-    background: none; border: none; padding: 12px 18px;
-    font-size: 1em; cursor: pointer; border-bottom: 3px solid transparent;
-    color: #444;
-  }
+  nav { background: #fff; border-bottom: 1px solid #ddd; padding: 0 12px;
+        overflow-x: auto; white-space: nowrap; }
+  nav button { background: none; border: none; padding: 12px 14px; font-size: 1em;
+               cursor: pointer; border-bottom: 3px solid transparent; color: #444; }
   nav button.active { color: #006699; border-bottom-color: #006699; font-weight: 600; }
   main { padding: 20px; max-width: 900px; margin: 0 auto; }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
-
-  .status-banner {
-    padding: 10px 14px; border-radius: 6px; margin-bottom: 16px;
-    font-size: 0.95em;
-  }
+  .sub-nav { background: #f4f6f8; border-bottom: 1px solid #ddd; margin-bottom: 16px; padding: 0; }
+  .sub-nav button { background: none; border: none; padding: 8px 14px; font-size: 0.95em;
+                    cursor: pointer; border-bottom: 2px solid transparent; color: #555; }
+  .sub-nav button.active { color: #006699; border-bottom-color: #006699; font-weight: 600; }
+  .status-banner { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 0.95em; }
   .status-banner.info     { background: #e6f2ff; color: #004471; }
   .status-banner.warning  { background: #fff4d6; color: #6b4d00; }
   .status-banner.error    { background: #fde2e2; color: #8a1a1a; }
   .status-banner.success  { background: #e0f5e0; color: #1a5a1a; }
-
-  .year-block {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-  .year-header {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
-    background: #f0f4f7;
-    cursor: pointer;
-  }
-  .year-header h2 {
-    margin: 0; font-size: 1.05em; flex: 1; font-weight: 600;
-  }
-  .year-header .chevron {
-    transition: transform 0.15s; font-size: 0.8em; margin-right: 8px;
-  }
+  .year-block, .item-block { background: #fff; border: 1px solid #ddd; border-radius: 6px;
+                             margin-bottom: 14px; overflow: hidden; }
+  .year-header { display: flex; align-items: center; padding: 10px 14px;
+                 background: #f0f4f7; cursor: pointer; }
+  .year-header h2 { margin: 0; font-size: 1.05em; flex: 1; font-weight: 600; }
+  .year-header .chevron { transition: transform 0.15s; font-size: 0.8em; margin-right: 8px; }
   .year-block.expanded .year-header .chevron { transform: rotate(90deg); }
-  .year-header .year-actions {
-    display: flex; gap: 6px;
-  }
+  .year-header .year-actions { display: flex; gap: 6px; }
   .year-body { display: none; padding: 8px 14px 14px; }
   .year-block.expanded .year-body { display: block; }
-
-  .entry {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-  }
+  .entry { display: grid; grid-template-columns: 1fr auto; gap: 10px;
+           padding: 8px 0; border-bottom: 1px solid #eee; }
   .entry:last-child { border-bottom: none; }
   .entry-text strong { color: #006699; }
   .entry-text { font-size: 0.95em; }
   .entry-actions { display: flex; gap: 6px; flex-shrink: 0; }
-
-  button {
-    font: inherit;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+  .item-row { padding: 10px 14px; border-bottom: 1px solid #eee;
+              display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start; }
+  .item-row:last-child { border-bottom: none; }
+  .item-content { font-size: 0.95em; }
+  .item-content .item-title { font-weight: 600; color: #006699; margin-bottom: 4px; }
+  .item-content .item-meta  { font-size: 0.85em; color: #888; }
+  .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  button { font: inherit; background: #fff; border: 1px solid #ccc;
+           padding: 6px 12px; border-radius: 4px; cursor: pointer; }
   button:hover { background: #f0f0f0; }
-  button.primary {
-    background: #006699; color: #fff; border-color: #006699;
-  }
+  button.primary { background: #006699; color: #fff; border-color: #006699; }
   button.primary:hover { background: #00547a; }
-  button.danger {
-    background: #fff; color: #a00; border-color: #d99;
-  }
+  button.danger  { background: #fff; color: #a00; border-color: #d99; }
   button.danger:hover { background: #fde2e2; }
   button.small { padding: 4px 8px; font-size: 0.85em; }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .toolbar {
-    margin-top: 16px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  /* Settings tab */
+  .toolbar { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
   .field { margin: 12px 0; }
   .field label { display: block; font-weight: 600; margin-bottom: 4px; }
-  .field input[type="text"], .field input[type="password"], .field textarea {
+  .field input[type="text"], .field input[type="password"], .field textarea, .field select {
     width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
-    font-family: inherit; font-size: 1em;
-  }
-  .field textarea { min-height: 80px; resize: vertical; }
+    font-family: inherit; font-size: 1em; }
+  .field textarea { min-height: 100px; resize: vertical; }
   .field-hint { font-size: 0.85em; color: #666; margin-top: 4px; }
-
-  /* Modal */
-  dialog {
-    border: none; border-radius: 8px; padding: 0;
-    width: 90%; max-width: 600px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
+  dialog { border: none; border-radius: 8px; padding: 0;
+           width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
   dialog::backdrop { background: rgba(0,0,0,0.4); }
   dialog .modal-body { padding: 20px; }
   dialog h3 { margin-top: 0; }
-  dialog .modal-actions {
-    display: flex; justify-content: flex-end; gap: 8px;
-    padding: 12px 20px; border-top: 1px solid #eee; background: #f8f8f8;
-  }
-  .upload-status {
-    margin-top: 6px; font-size: 0.85em;
-  }
-  .upload-status.error { color: #a00; }
+  dialog .modal-actions { display: flex; justify-content: flex-end; gap: 8px;
+                          padding: 12px 20px; border-top: 1px solid #eee; background: #f8f8f8; }
+  .upload-status { margin-top: 6px; font-size: 0.85em; }
+  .upload-status.error   { color: #a00; }
   .upload-status.success { color: #080; }
-
   @media (max-width: 600px) {
     header { padding: 10px 12px; }
     main { padding: 12px; }
-    nav { padding: 0; }
     nav button { padding: 10px 12px; font-size: 0.95em; }
-    .entry { grid-template-columns: 1fr; }
-    .entry-actions { justify-content: flex-end; }
+    .entry, .item-row { grid-template-columns: 1fr; }
+    .entry-actions, .item-actions { justify-content: flex-end; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Site-editor — www.mariekestoel.nl</h1>
-</header>
+<header><h1>Site-editor — www.mariekestoel.nl</h1></header>
 
 <nav>
-  <button data-tab="agenda" class="active">Agenda</button>
+  <button data-tab="agenda"      class="active">Agenda</button>
+  <button data-tab="composities">Composities</button>
+  <button data-tab="cv">CV</button>
+  <button data-tab="lessen">Lessen</button>
+  <button data-tab="meermuziek">Meer muziek</button>
   <button data-tab="settings">Instellingen</button>
 </nav>
 
 <main>
 
 <section id="tab-agenda" class="tab-content active">
-  <div id="status" class="status-banner info">Bezig met laden…</div>
-
-  <div id="year-list"></div>
-
+  <div id="agenda-status" class="status-banner info">Bezig met laden…</div>
+  <div id="agenda-list"></div>
   <div class="toolbar">
-    <button id="add-year">+ Nieuw jaar toevoegen</button>
-    <button id="save-github" class="primary" disabled>Bewaren op GitHub</button>
-    <button id="download-json">Download agenda.json</button>
+    <button id="agenda-add-year">+ Nieuw jaar toevoegen</button>
+    <button id="agenda-save"     class="primary" disabled>Bewaren op GitHub</button>
+    <button id="agenda-download">Download agenda.json</button>
   </div>
+</section>
 
-  <p class="field-hint" style="margin-top: 14px;">
-    Klik op een jaar om de concerten te zien en te bewerken.
-    "Bewaren op GitHub" zet de wijzigingen direct online (token nodig).
-    "Download agenda.json" maakt een bestand dat u handmatig naar GitHub kunt slepen.
+<section id="tab-composities" class="tab-content">
+  <div id="composities-status" class="status-banner info">Bezig met laden…</div>
+  <div id="composities-list"></div>
+  <div class="toolbar">
+    <button id="composities-add">+ Nieuwe compositie</button>
+    <button id="composities-save" class="primary" disabled>Bewaren op GitHub</button>
+    <button id="composities-download">Download composities.json</button>
+  </div>
+</section>
+
+<section id="tab-cv" class="tab-content">
+  <div id="cv-status" class="status-banner info">Bezig met laden…</div>
+  <div class="sub-nav">
+    <button data-cvlang="nl" class="active">Nederlands</button>
+    <button data-cvlang="en">English</button>
+    <button data-cvlang="de">Deutsch</button>
+    <button data-cvlang="fr">Français</button>
+  </div>
+  <div class="field">
+    <label for="cv-title">Titel van deze CV</label>
+    <input type="text" id="cv-title" />
+  </div>
+  <h3>Tekstblokken</h3>
+  <div id="cv-blocks"></div>
+  <div class="toolbar">
+    <button data-add="p"  data-target="cv">+ Alinea</button>
+    <button data-add="h2" data-target="cv">+ Tussenkop</button>
+    <button id="cv-save"     class="primary" disabled>Bewaren op GitHub</button>
+    <button id="cv-download">Download cv.json</button>
+  </div>
+</section>
+
+<section id="tab-lessen" class="tab-content">
+  <div id="lessen-status" class="status-banner info">Bezig met laden…</div>
+  <div class="field">
+    <label for="lessen-title">Titel</label>
+    <input type="text" id="lessen-title" />
+  </div>
+  <h3>Tekstblokken</h3>
+  <div id="lessen-blocks"></div>
+  <div class="toolbar">
+    <button data-add="p"  data-target="lessen">+ Alinea</button>
+    <button data-add="h2" data-target="lessen">+ Tussenkop</button>
+    <button id="lessen-save"     class="primary" disabled>Bewaren op GitHub</button>
+    <button id="lessen-download">Download lessen.json</button>
+  </div>
+</section>
+
+<section id="tab-meermuziek" class="tab-content">
+  <div id="meermuziek-status" class="status-banner info">Bezig met laden…</div>
+  <p class="field-hint">
+    Voeg hier extra muziekfragmenten toe. Deze worden onderaan de pagina <em>Discografie</em>
+    getoond, onder de kop &ldquo;Meer muziek&rdquo;. Als de lijst leeg is, wordt er niets getoond.
   </p>
+  <div id="meermuziek-list"></div>
+  <div class="toolbar">
+    <button id="mm-add">+ Nieuw fragment</button>
+    <button id="meermuziek-save"     class="primary" disabled>Bewaren op GitHub</button>
+    <button id="meermuziek-download">Download meermuziek.json</button>
+  </div>
 </section>
 
 <section id="tab-settings" class="tab-content">
   <h2>Instellingen</h2>
-
   <div class="field">
     <label for="pat-input">GitHub Personal Access Token</label>
     <input type="password" id="pat-input" placeholder="github_pat_..." autocomplete="off" />
     <div class="field-hint">
       Met een token kunt u wijzigingen direct opslaan op GitHub.
-      Zonder token kunt u alleen <em>agenda.json</em> downloaden en daarna handmatig op GitHub uploaden.
-      De token wordt alleen in deze browser bewaard, niet online.
+      Zonder token kunt u alleen de JSON-bestanden downloaden en daarna handmatig op GitHub uploaden.
     </div>
     <div style="margin-top: 10px; display: flex; gap: 8px;">
-      <button id="pat-save" class="primary">Token bewaren</button>
+      <button id="pat-save"  class="primary">Token bewaren</button>
       <button id="pat-clear" class="danger">Token verwijderen</button>
     </div>
     <p id="pat-status" class="field-hint" style="margin-top: 10px;"></p>
   </div>
-
   <hr style="margin: 30px 0;" />
-
   <h3>Help: een nieuw token aanmaken</h3>
   <ol style="font-size: 0.95em;">
     <li>Ga naar <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a> en log in.</li>
     <li>Geef een naam, bv. <em>mariekestoel-editor</em>.</li>
-    <li>Bij <em>Expiration</em>: kies "No expiration" (of een lange tijd).</li>
-    <li>Bij <em>Repository access</em>: kies "Only select repositories" en selecteer deze website-repository.</li>
-    <li>Bij <em>Repository permissions</em>: zoek <em>Contents</em> en zet die op <em>Read and write</em>. Niets anders.</li>
-    <li>Klik onderaan <em>Generate token</em> en kopieer de lange code.</li>
-    <li>Plak de code hierboven en klik <em>Token bewaren</em>.</li>
+    <li>Bij <em>Expiration</em>: kies &ldquo;No expiration&rdquo;.</li>
+    <li>Bij <em>Repository access</em>: &ldquo;Only select repositories&rdquo; → kies <em>mariekestoel.github.io</em>.</li>
+    <li>Bij <em>Repository permissions</em>: zet <em>Contents</em> op <em>Read and write</em>. Niets anders.</li>
+    <li>Klik <em>Generate token</em>, kopieer de code, plak hierboven, klik <em>Token bewaren</em>.</li>
   </ol>
 </section>
 
 </main>
 
-<!-- Modal: edit entry -->
 <dialog id="entry-dialog">
   <div class="modal-body">
-    <h3 id="entry-dialog-title">Concert bewerken</h3>
-    <form id="entry-form">
-      <div class="field">
-        <label for="ef-date">Datum</label>
-        <input type="text" id="ef-date" placeholder="bv. zondag 21 mei 2025" required />
+    <h3 id="entry-dialog-title">Concert</h3>
+    <div class="field"><label>Datum</label><input type="text" id="ef-date" required /></div>
+    <div class="field"><label>Tijd</label><input type="text" id="ef-time" /></div>
+    <div class="field"><label>Beschrijving</label><textarea id="ef-desc"></textarea></div>
+    <div class="field"><label>Programmabestand (optioneel)</label>
+      <input type="text" id="ef-link" placeholder="bv. Programmas/programma_xyz.doc" />
+      <div style="margin-top:6px;">
+        <input type="file" id="ef-upload" />
+        <button type="button" id="ef-upload-btn" class="small">Upload nieuw bestand…</button>
       </div>
-      <div class="field">
-        <label for="ef-time">Tijd</label>
-        <input type="text" id="ef-time" placeholder="bv. 13.00 tot 13.30 uur" />
-      </div>
-      <div class="field">
-        <label for="ef-desc">Beschrijving</label>
-        <textarea id="ef-desc" required></textarea>
-      </div>
-      <div class="field">
-        <label for="ef-link">Programmabestand (optioneel)</label>
-        <input type="text" id="ef-link" placeholder="bv. Programmas/programma_xyz.doc" />
-        <div style="margin-top: 6px;">
-          <input type="file" id="ef-upload" />
-          <button type="button" id="ef-upload-btn" class="small">Upload nieuw bestand…</button>
-        </div>
-        <p id="ef-upload-status" class="upload-status"></p>
-      </div>
-    </form>
+      <p id="ef-upload-status" class="upload-status"></p>
+    </div>
   </div>
   <div class="modal-actions">
     <button type="button" id="ef-cancel">Annuleren</button>
@@ -243,14 +223,11 @@
   </div>
 </dialog>
 
-<!-- Modal: edit year -->
 <dialog id="year-dialog">
   <div class="modal-body">
-    <h3 id="year-dialog-title">Jaar bewerken</h3>
-    <div class="field">
-      <label for="yf-label">Naam van het jaar-blok</label>
-      <input type="text" id="yf-label" placeholder="bv. Concerten in 2026" required />
-    </div>
+    <h3 id="year-dialog-title">Jaar</h3>
+    <div class="field"><label>Naam van het jaar-blok</label>
+      <input type="text" id="yf-label" required /></div>
   </div>
   <div class="modal-actions">
     <button type="button" id="yf-cancel">Annuleren</button>
@@ -258,511 +235,656 @@
   </div>
 </dialog>
 
-<script>
-/* ================================================================
- * CONFIGURATION — edit these once at install time, then forget.
- * ================================================================ */
-const REPO_OWNER  = 'mariekestoel';                // your GitHub username
-const REPO_NAME   = 'mariekestoel.github.io';      // the repository name
-const REPO_BRANCH = 'main';                        // usually 'main' (sometimes 'master')
-/* ================================================================ */
+<dialog id="comp-dialog">
+  <div class="modal-body">
+    <h3 id="comp-dialog-title">Compositie</h3>
+    <div class="field"><label>Titel</label><input type="text" id="cf-title" required /></div>
+    <div class="field"><label>PDF-bestand</label>
+      <input type="text" id="cf-link" placeholder="bv. Composities/mijn_compositie.pdf" />
+      <div style="margin-top:6px;">
+        <input type="file" id="cf-upload" accept=".pdf" />
+        <button type="button" id="cf-upload-btn" class="small">Upload nieuwe PDF…</button>
+      </div>
+      <p id="cf-upload-status" class="upload-status"></p>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button type="button" id="cf-cancel">Annuleren</button>
+    <button type="button" id="cf-save" class="primary">Opslaan</button>
+  </div>
+</dialog>
 
+<dialog id="block-dialog">
+  <div class="modal-body">
+    <h3 id="block-dialog-title">Tekstblok</h3>
+    <div class="field"><label>Type</label>
+      <select id="bf-type">
+        <option value="p">Alinea</option>
+        <option value="h2">Tussenkop</option>
+      </select>
+    </div>
+    <div class="field"><label>Tekst</label>
+      <textarea id="bf-content" style="min-height:180px;"></textarea>
+      <div class="field-hint">
+        Voor links: <code>&lt;a href="https://..." target="_blank"&gt;tekst&lt;/a&gt;</code>.
+        Vet: <code>&lt;strong&gt;tekst&lt;/strong&gt;</code>. Regelafbreking: <code>&lt;br /&gt;</code>.
+      </div>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button type="button" id="bf-cancel">Annuleren</button>
+    <button type="button" id="bf-save" class="primary">Opslaan</button>
+  </div>
+</dialog>
+
+<dialog id="mm-dialog">
+  <div class="modal-body">
+    <h3 id="mm-dialog-title">Muziekfragment</h3>
+    <div class="field"><label>Beschrijving</label><textarea id="mf-desc"></textarea></div>
+    <div class="field"><label>MP3-bestand</label>
+      <input type="text" id="mf-file" placeholder="bv. Muziek/mijn_opname.mp3" />
+      <div style="margin-top:6px;">
+        <input type="file" id="mf-upload" accept=".mp3,audio/mpeg" />
+        <button type="button" id="mf-upload-btn" class="small">Upload nieuwe MP3…</button>
+      </div>
+      <p id="mf-upload-status" class="upload-status"></p>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button type="button" id="mf-cancel">Annuleren</button>
+    <button type="button" id="mf-save" class="primary">Opslaan</button>
+  </div>
+</dialog>
+
+<script>
+
+/* ============================================================ */
+/* CONFIGURATION — edit at install time, then forget.           */
+/* ============================================================ */
+const REPO_OWNER  = 'mariekestoel';
+const REPO_NAME   = 'mariekestoel.github.io';
+const REPO_BRANCH = 'main';
 const PAT_STORAGE_KEY = 'mariekestoel_github_pat';
 const GH_API = 'https://api.github.com';
 
-let state = {
-  data: [],          // [{label, rows: [{date, time, desc, link}]}]
-  fileSha: null,     // SHA from GitHub (needed when committing updates)
-  dirty: false,
-  editingYearIndex: null,
-  editingEntry: null,   // {yearIndex, entryIndex} or {yearIndex, entryIndex: null} for new
+const collections = {
+  agenda:      { file: 'agenda.json',      data: null, dirty: false, fileSha: null },
+  composities: { file: 'composities.json', data: null, dirty: false, fileSha: null },
+  cv:          { file: 'cv.json',          data: null, dirty: false, fileSha: null },
+  lessen:      { file: 'lessen.json',      data: null, dirty: false, fileSha: null },
+  meermuziek:  { file: 'meermuziek.json',  data: null, dirty: false, fileSha: null },
 };
+let currentCvLang = 'nl';
 
-/* ---------- localStorage ---------- */
 function getPat() { return localStorage.getItem(PAT_STORAGE_KEY) || ''; }
-function setPat(v) {
-  if (v) localStorage.setItem(PAT_STORAGE_KEY, v);
-  else   localStorage.removeItem(PAT_STORAGE_KEY);
-}
-
-/* ---------- DOM helpers ---------- */
+function setPat(v) { v ? localStorage.setItem(PAT_STORAGE_KEY, v) : localStorage.removeItem(PAT_STORAGE_KEY); }
 function $(id) { return document.getElementById(id); }
 function el(tag, attrs, ...children) {
-  const node = document.createElement(tag);
-  if (attrs) {
-    for (const [k, v] of Object.entries(attrs)) {
-      if (k === 'class') node.className = v;
-      else if (k === 'onclick') node.addEventListener('click', v);
-      else node.setAttribute(k, v);
-    }
+  const n = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
   }
   for (const c of children) {
-    if (typeof c === 'string') node.appendChild(document.createTextNode(c));
-    else if (c) node.appendChild(c);
+    if (typeof c === 'string') n.appendChild(document.createTextNode(c));
+    else if (c) n.appendChild(c);
   }
-  return node;
+  return n;
 }
-function setStatus(msg, kind = 'info') {
-  const s = $('status');
-  s.className = 'status-banner ' + kind;
-  s.textContent = msg;
+function setStatus(key, msg, kind) {
+  const s = $(key + '-status'); if (!s) return;
+  s.className = 'status-banner ' + (kind || 'info'); s.textContent = msg;
 }
-
-/* ---------- base64 helpers (UTF-8 safe) ---------- */
-function utf8ToBase64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = '';
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+function utf8ToBase64(s) {
+  const b = new TextEncoder().encode(s); let bin = '';
+  for (let i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]);
   return btoa(bin);
 }
-function base64ToUtf8(b64) {
-  const bin = atob(b64.replace(/\s/g, ''));
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-function bytesToBase64(bytes) {
-  let bin = '';
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+function bytesToBase64(b) {
+  let bin = ''; for (let i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]);
   return btoa(bin);
 }
 
-/* ---------- GitHub API ---------- */
 async function ghGet(path) {
   const pat = getPat();
   const headers = { Accept: 'application/vnd.github+json' };
   if (pat) headers.Authorization = 'Bearer ' + pat;
   const r = await fetch(`${GH_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${REPO_BRANCH}`, { headers });
-  if (!r.ok) {
-    const text = await r.text();
-    throw new Error(`GitHub GET ${path}: ${r.status} ${text.slice(0, 200)}`);
-  }
+  if (!r.ok) { const t = await r.text(); throw new Error(`GitHub GET ${path}: ${r.status} ${t.slice(0,200)}`); }
   return r.json();
 }
-async function ghPut(path, contentBase64, message, sha) {
-  const pat = getPat();
-  if (!pat) throw new Error('Geen GitHub-token ingesteld.');
-  const body = { message, content: contentBase64, branch: REPO_BRANCH };
+async function ghPut(path, b64, message, sha) {
+  const pat = getPat(); if (!pat) throw new Error('Geen GitHub-token ingesteld.');
+  const body = { message, content: b64, branch: REPO_BRANCH };
   if (sha) body.sha = sha;
   const r = await fetch(`${GH_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, {
     method: 'PUT',
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: 'Bearer ' + pat,
-      'Content-Type': 'application/json',
-    },
+    headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!r.ok) {
-    const text = await r.text();
-    throw new Error(`GitHub PUT ${path}: ${r.status} ${text.slice(0, 200)}`);
-  }
+  if (!r.ok) { const t = await r.text(); throw new Error(`GitHub PUT ${path}: ${r.status} ${t.slice(0,200)}`); }
   return r.json();
 }
 
-/* ---------- Load agenda (always via plain fetch — never uses the GitHub API,
-   so it works regardless of token/config state) ---------- */
-async function loadAgenda() {
-  setStatus('Bezig met laden…', 'info');
-  try {
-    const r = await fetch('agenda.json', { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    state.data = await r.json();
-    state.fileSha = null;   // fetched lazily right before saving
-    state.dirty = false;
-    if (getPat()) {
-      setStatus(`${countEntries()} concerten geladen. Token aanwezig: wijzigingen kunnen direct op GitHub bewaard worden.`, 'success');
-      $('save-github').disabled = false;
-    } else {
-      setStatus(`${countEntries()} concerten geladen. Zonder token kunt u alleen downloaden. Stel een token in onder "Instellingen" om direct op GitHub te bewaren.`, 'warning');
-      $('save-github').disabled = true;
-    }
-    render();
-  } catch (err) {
-    setStatus('Laden mislukt: ' + err.message, 'error');
-  }
+async function loadCollection(key) {
+  const c = collections[key];
+  const r = await fetch(c.file, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  c.data = await r.json(); c.dirty = false; c.fileSha = null;
 }
-
-/* Quick check whether the saved token actually works and can reach this repo.
-   Used when the maintainer enters their token, to give immediate feedback. */
-async function testTokenAccess() {
-  const pat = getPat();
-  if (!pat) return { ok: false, msg: 'Geen token ingesteld.' };
-  // 1) Token valid at all?
-  try {
-    const userR = await fetch(GH_API + '/user', {
-      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
-    });
-    if (!userR.ok) {
-      return { ok: false, msg: `Token werkt niet (HTTP ${userR.status}). Maak een nieuwe aan.` };
-    }
-    const user = await userR.json();
-    // 2) Repo accessible with this token?
-    const repoR = await fetch(`${GH_API}/repos/${REPO_OWNER}/${REPO_NAME}`, {
-      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
-    });
-    if (!repoR.ok) {
-      return {
-        ok: false,
-        msg: `Token geldig (ingelogd als ${user.login}), maar geen toegang tot ${REPO_OWNER}/${REPO_NAME} (HTTP ${repoR.status}). ` +
-             `Controleer dat het token toegang heeft tot deze repository met "Contents: Read and write".`,
-      };
-    }
-    return { ok: true, msg: `✓ Token werkt. Ingelogd als ${user.login}, toegang tot ${REPO_OWNER}/${REPO_NAME}.` };
-  } catch (err) {
-    return { ok: false, msg: 'Verbinding mislukt: ' + err.message };
-  }
+function countAgenda() {
+  return (collections.agenda.data || []).reduce((n, y) => n + (y.rows || []).length, 0);
 }
-
-function countEntries() {
-  return state.data.reduce((n, y) => n + (y.rows || []).length, 0);
-}
-
-/* ---------- Render ---------- */
-function render() {
-  const list = $('year-list');
-  list.innerHTML = '';
-  state.data.forEach((year, yi) => {
-    const block = el('div', { class: 'year-block' });
-    const header = el('div', { class: 'year-header' });
-    const chev = el('span', { class: 'chevron' }, '▶');
-    const title = el('h2', null, year.label);
-    const actions = el('div', { class: 'year-actions' });
-    const upBtn = el('button', {
-      class: 'small',
-      title: 'Jaar naar boven',
-      onclick: (e) => { e.stopPropagation(); moveYear(yi, -1); }
-    }, '↑');
-    if (yi === 0) upBtn.disabled = true;
-    const downBtn = el('button', {
-      class: 'small',
-      title: 'Jaar naar beneden',
-      onclick: (e) => { e.stopPropagation(); moveYear(yi, +1); }
-    }, '↓');
-    if (yi === state.data.length - 1) downBtn.disabled = true;
-    const editBtn = el('button', {
-      class: 'small',
-      onclick: (e) => { e.stopPropagation(); openYearDialog(yi); }
-    }, 'Naam wijzigen');
-    const delBtn = el('button', {
-      class: 'small danger',
-      onclick: (e) => { e.stopPropagation(); deleteYear(yi); }
-    }, 'Verwijderen');
-    actions.appendChild(upBtn);
-    actions.appendChild(downBtn);
-    actions.appendChild(editBtn);
-    actions.appendChild(delBtn);
-    header.appendChild(chev);
-    header.appendChild(title);
-    header.appendChild(actions);
-    header.addEventListener('click', () => block.classList.toggle('expanded'));
-    block.appendChild(header);
-
-    const body = el('div', { class: 'year-body' });
-    (year.rows || []).forEach((row, ri) => {
-      const e = el('div', { class: 'entry' });
-      const text = el('div', { class: 'entry-text' });
-      const datePart = el('strong', null, row.date || '');
-      text.appendChild(datePart);
-      if (row.time) text.appendChild(document.createTextNode(' ' + row.time));
-      text.appendChild(el('br'));
-      const descSpan = el('span');
-      descSpan.innerHTML = row.desc || '';
-      text.appendChild(descSpan);
-      if (row.link) {
-        text.appendChild(el('br'));
-        const linkSpan = el('span', { style: 'font-size: 0.85em; color: #888;' });
-        linkSpan.appendChild(document.createTextNode('🔗 ' + row.link));
-        text.appendChild(linkSpan);
-      }
-      const actions2 = el('div', { class: 'entry-actions' });
-      const eUp = el('button', {
-        class: 'small',
-        title: 'Naar boven',
-        onclick: () => moveEntry(yi, ri, -1),
-      }, '↑');
-      if (ri === 0) eUp.disabled = true;
-      const eDown = el('button', {
-        class: 'small',
-        title: 'Naar beneden',
-        onclick: () => moveEntry(yi, ri, +1),
-      }, '↓');
-      if (ri === (year.rows || []).length - 1) eDown.disabled = true;
-      actions2.appendChild(eUp);
-      actions2.appendChild(eDown);
-      actions2.appendChild(el('button', {
-        class: 'small',
-        onclick: () => openEntryDialog(yi, ri),
-      }, 'Bewerken'));
-      actions2.appendChild(el('button', {
-        class: 'small danger',
-        onclick: () => deleteEntry(yi, ri),
-      }, 'Verwijderen'));
-      e.appendChild(text);
-      e.appendChild(actions2);
-      body.appendChild(e);
-    });
-    const addBtn = el('button', {
-      onclick: () => openEntryDialog(yi, null),
-      style: 'margin-top: 8px;',
-    }, '+ Nieuw concert');
-    body.appendChild(addBtn);
-
-    block.appendChild(body);
-    list.appendChild(block);
-  });
-  // Reflect dirty state on save button
-  const save = $('save-github');
-  if (state.dirty && getPat()) {
-    save.textContent = 'Bewaren op GitHub (er zijn wijzigingen)';
-  } else {
-    save.textContent = 'Bewaren op GitHub';
-  }
-}
-
-/* ---------- Entry dialog ---------- */
-function openEntryDialog(yi, ri) {
-  state.editingEntry = { yearIndex: yi, entryIndex: ri };
-  const dialog = $('entry-dialog');
-  const isNew = (ri === null);
-  $('entry-dialog-title').textContent = isNew ? 'Nieuw concert' : 'Concert bewerken';
-  const row = isNew ? { date: '', time: '', desc: '', link: '' }
-                    : state.data[yi].rows[ri];
-  $('ef-date').value = row.date || '';
-  $('ef-time').value = row.time || '';
-  $('ef-desc').value = row.desc || '';
-  $('ef-link').value = row.link || '';
-  $('ef-upload-status').textContent = '';
-  $('ef-upload').value = '';
-  dialog.showModal();
-}
-
-$('ef-cancel').onclick = () => $('entry-dialog').close();
-$('ef-save').onclick = () => {
-  const yi = state.editingEntry.yearIndex;
-  const ri = state.editingEntry.entryIndex;
-  const row = {
-    date: $('ef-date').value.trim(),
-    time: $('ef-time').value.trim(),
-    desc: $('ef-desc').value.trim(),
-    link: $('ef-link').value.trim() || null,
-  };
-  if (!row.date && !row.desc) {
-    alert('Vul minstens een datum of beschrijving in.');
-    return;
-  }
-  if (ri === null) state.data[yi].rows.unshift(row);    // new entry → top of the year
-  else             state.data[yi].rows[ri] = row;
-  state.dirty = true;
-  $('entry-dialog').close();
-  render();
-};
-
-$('ef-upload-btn').onclick = async () => {
-  const fileInput = $('ef-upload');
-  if (!fileInput.files || !fileInput.files[0]) {
-    alert('Kies eerst een bestand met "Browse..." of "Bestand kiezen".');
-    return;
-  }
-  if (!getPat()) {
-    alert('Een GitHub-token is nodig om bestanden te uploaden. ' +
-          'Stel die in onder "Instellingen".');
-    return;
-  }
-  const file = fileInput.files[0];
-  const filename = file.name;
-  const path = 'Programmas/' + filename;
-  const statusEl = $('ef-upload-status');
-  statusEl.textContent = 'Uploaden…';
-  statusEl.className = 'upload-status';
-  try {
-    const arrayBuf = await file.arrayBuffer();
-    const b64 = bytesToBase64(new Uint8Array(arrayBuf));
-    // First check if it already exists to get SHA
-    let existingSha = null;
+async function loadAll() {
+  const has = !!getPat();
+  for (const key of Object.keys(collections)) {
     try {
-      const existing = await ghGet(path);
-      existingSha = existing.sha;
-    } catch (e) { /* doesn't exist, fine */ }
-    await ghPut(path, b64, 'Upload ' + filename, existingSha);
-    $('ef-link').value = path;
-    statusEl.textContent = '✓ Bestand geüpload naar ' + path;
+      await loadCollection(key);
+      const msg = (key === 'agenda')      ? `${countAgenda()} concerten geladen.`
+                : (key === 'composities') ? `${collections.composities.data.length} composities geladen.`
+                : (key === 'meermuziek')  ? `${collections.meermuziek.data.length} muziekfragmenten geladen.`
+                : 'Inhoud geladen.';
+      setStatus(key, has ? msg + ' Token aanwezig.' : msg + ' Zonder token: alleen downloaden mogelijk.',
+                has ? 'success' : 'warning');
+      $(key + '-save').disabled = !has;
+    } catch (err) {
+      setStatus(key, 'Laden mislukt: ' + err.message, 'error');
+    }
+  }
+  renderAll();
+}
+
+async function saveCollection(key) {
+  if (!getPat()) { alert('Geen token. Stel die in onder "Instellingen".'); return; }
+  const c = collections[key]; const btn = $(key + '-save');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'SHA ophalen…';
+  try {
+    let sha;
+    try { sha = (await ghGet(c.file)).sha; }
+    catch (err) {
+      throw new Error('Kon ' + c.file + ' niet bereiken. Controleer constanten en token-rechten. ' + err.message);
+    }
+    btn.textContent = 'Bezig met opslaan…';
+    const json = JSON.stringify(c.data, null, 2);
+    const res = await ghPut(c.file, utf8ToBase64(json), 'Update ' + c.file + ' (via editor)', sha);
+    c.fileSha = res.content.sha; c.dirty = false;
+    setStatus(key, 'Opgeslagen. De website wordt binnen een paar minuten bijgewerkt.', 'success');
+    renderAll();
+  } catch (err) { setStatus(key, 'Opslaan mislukt: ' + err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = old; }
+}
+
+function downloadCollection(key) {
+  const c = collections[key]; const json = JSON.stringify(c.data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = c.file;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus(key, c.file + ' gedownload. Sleep dit bestand op GitHub om de wijzigingen online te zetten.', 'info');
+}
+
+async function uploadFileToFolder(file, folder, statusEl, hiddenInput) {
+  if (!getPat()) { alert('Een token is nodig om bestanden te uploaden.'); return; }
+  const path = folder + '/' + file.name;
+  statusEl.textContent = 'Uploaden…'; statusEl.className = 'upload-status';
+  try {
+    const buf = await file.arrayBuffer();
+    const b64 = bytesToBase64(new Uint8Array(buf));
+    let sha = null;
+    try { sha = (await ghGet(path)).sha; } catch {}
+    await ghPut(path, b64, 'Upload ' + file.name, sha);
+    hiddenInput.value = path;
+    statusEl.textContent = '✓ Geüpload naar ' + path;
     statusEl.className = 'upload-status success';
   } catch (err) {
     statusEl.textContent = 'Upload mislukt: ' + err.message;
     statusEl.className = 'upload-status error';
   }
-};
-
-/* ---------- Year dialog ---------- */
-function openYearDialog(yi) {
-  state.editingYearIndex = yi;
-  const isNew = (yi === null);
-  $('year-dialog-title').textContent = isNew ? 'Nieuw jaar' : 'Naam van jaar wijzigen';
-  $('yf-label').value = isNew ? '' : state.data[yi].label;
-  $('year-dialog').showModal();
 }
 
+/* ===== AGENDA ===== */
+let editingAgendaYear = null, editingAgendaEntry = null;
+
+function renderAgenda() {
+  const list = $('agenda-list'); if (!list) return; list.innerHTML = '';
+  const data = collections.agenda.data || [];
+  data.forEach((year, yi) => {
+    const block = el('div', { class: 'year-block' });
+    const header = el('div', { class: 'year-header' });
+    header.appendChild(el('span', { class: 'chevron' }, '▶'));
+    header.appendChild(el('h2', null, year.label));
+    const acts = el('div', { class: 'year-actions' });
+    const up = el('button', { class: 'small', title: 'Naar boven',
+      onclick: e => { e.stopPropagation(); moveYear(yi, -1); } }, '↑');
+    if (yi === 0) up.disabled = true;
+    const dn = el('button', { class: 'small', title: 'Naar beneden',
+      onclick: e => { e.stopPropagation(); moveYear(yi, +1); } }, '↓');
+    if (yi === data.length - 1) dn.disabled = true;
+    acts.appendChild(up); acts.appendChild(dn);
+    acts.appendChild(el('button', { class: 'small',
+      onclick: e => { e.stopPropagation(); openYearDialog(yi); } }, 'Naam wijzigen'));
+    acts.appendChild(el('button', { class: 'small danger',
+      onclick: e => { e.stopPropagation(); deleteYear(yi); } }, 'Verwijderen'));
+    header.appendChild(acts);
+    header.addEventListener('click', () => block.classList.toggle('expanded'));
+    block.appendChild(header);
+    const body = el('div', { class: 'year-body' });
+    (year.rows || []).forEach((row, ri) => {
+      const e = el('div', { class: 'entry' });
+      const txt = el('div', { class: 'entry-text' });
+      txt.appendChild(el('strong', null, row.date || ''));
+      if (row.time) txt.appendChild(document.createTextNode(' ' + row.time));
+      txt.appendChild(el('br'));
+      const ds = el('span'); ds.innerHTML = row.desc || ''; txt.appendChild(ds);
+      if (row.link) {
+        txt.appendChild(el('br'));
+        txt.appendChild(el('span', { style: 'font-size:0.85em;color:#888;' }, '🔗 ' + row.link));
+      }
+      const ea = el('div', { class: 'entry-actions' });
+      const eu = el('button', { class: 'small', title: 'Naar boven', onclick: () => moveEntry(yi, ri, -1) }, '↑');
+      if (ri === 0) eu.disabled = true;
+      const ed = el('button', { class: 'small', title: 'Naar beneden', onclick: () => moveEntry(yi, ri, +1) }, '↓');
+      if (ri === (year.rows || []).length - 1) ed.disabled = true;
+      ea.appendChild(eu); ea.appendChild(ed);
+      ea.appendChild(el('button', { class: 'small', onclick: () => openEntryDialog(yi, ri) }, 'Bewerken'));
+      ea.appendChild(el('button', { class: 'small danger', onclick: () => deleteEntry(yi, ri) }, 'Verwijderen'));
+      e.appendChild(txt); e.appendChild(ea);
+      body.appendChild(e);
+    });
+    body.appendChild(el('button', { onclick: () => openEntryDialog(yi, null), style: 'margin-top:8px;' }, '+ Nieuw concert'));
+    block.appendChild(body); list.appendChild(block);
+  });
+}
+function moveEntry(yi, ri, dir) {
+  const r = collections.agenda.data[yi].rows; const ni = ri + dir;
+  if (ni < 0 || ni >= r.length) return;
+  [r[ri], r[ni]] = [r[ni], r[ri]];
+  collections.agenda.dirty = true; renderAgenda();
+  const b = document.querySelectorAll('#agenda-list .year-block')[yi];
+  if (b) b.classList.add('expanded');
+}
+function moveYear(yi, dir) {
+  const d = collections.agenda.data; const ni = yi + dir;
+  if (ni < 0 || ni >= d.length) return;
+  [d[yi], d[ni]] = [d[ni], d[yi]];
+  collections.agenda.dirty = true; renderAgenda();
+}
+function deleteEntry(yi, ri) {
+  const row = collections.agenda.data[yi].rows[ri];
+  if (!confirm(`Concert verwijderen?\n\n${row.date}\n${(row.desc || '').slice(0,120)}`)) return;
+  collections.agenda.data[yi].rows.splice(ri, 1);
+  collections.agenda.dirty = true; renderAgenda();
+}
+function deleteYear(yi) {
+  const y = collections.agenda.data[yi];
+  const n = (y.rows || []).length;
+  if (!confirm(`Het hele blok "${y.label}" verwijderen?` + (n > 0 ? ` Dit verwijdert ook ${n} concert(en).` : ''))) return;
+  collections.agenda.data.splice(yi, 1);
+  collections.agenda.dirty = true; renderAgenda();
+}
+function openYearDialog(yi) {
+  editingAgendaYear = yi;
+  $('year-dialog-title').textContent = (yi === null) ? 'Nieuw jaar' : 'Naam wijzigen';
+  $('yf-label').value = (yi === null) ? '' : collections.agenda.data[yi].label;
+  $('year-dialog').showModal();
+}
 $('yf-cancel').onclick = () => $('year-dialog').close();
 $('yf-save').onclick = () => {
   const label = $('yf-label').value.trim();
   if (!label) { alert('Geef een naam op.'); return; }
-  const yi = state.editingYearIndex;
-  if (yi === null) {
-    state.data.unshift({ label, rows: [] });
+  if (editingAgendaYear === null) collections.agenda.data.unshift({ label, rows: [] });
+  else collections.agenda.data[editingAgendaYear].label = label;
+  collections.agenda.dirty = true; $('year-dialog').close(); renderAgenda();
+};
+function openEntryDialog(yi, ri) {
+  editingAgendaEntry = { yi, ri };
+  $('entry-dialog-title').textContent = (ri === null) ? 'Nieuw concert' : 'Concert bewerken';
+  const row = (ri === null) ? { date:'', time:'', desc:'', link:'' } : collections.agenda.data[yi].rows[ri];
+  $('ef-date').value = row.date || ''; $('ef-time').value = row.time || '';
+  $('ef-desc').value = row.desc || ''; $('ef-link').value = row.link || '';
+  $('ef-upload-status').textContent = ''; $('ef-upload').value = '';
+  $('entry-dialog').showModal();
+}
+$('ef-cancel').onclick = () => $('entry-dialog').close();
+$('ef-save').onclick = () => {
+  const { yi, ri } = editingAgendaEntry;
+  const row = {
+    date: $('ef-date').value.trim(), time: $('ef-time').value.trim(),
+    desc: $('ef-desc').value.trim(), link: $('ef-link').value.trim() || null,
+  };
+  if (!row.date && !row.desc) { alert('Vul minstens een datum of beschrijving in.'); return; }
+  if (ri === null) collections.agenda.data[yi].rows.unshift(row);
+  else collections.agenda.data[yi].rows[ri] = row;
+  collections.agenda.dirty = true; $('entry-dialog').close(); renderAgenda();
+};
+$('ef-upload-btn').onclick = () => {
+  const f = $('ef-upload').files[0];
+  if (!f) { alert('Kies eerst een bestand.'); return; }
+  uploadFileToFolder(f, 'Programmas', $('ef-upload-status'), $('ef-link'));
+};
+$('agenda-add-year').onclick = () => openYearDialog(null);
+$('agenda-save').onclick    = () => saveCollection('agenda');
+$('agenda-download').onclick = () => downloadCollection('agenda');
+
+/* ===== COMPOSITIES ===== */
+let editingComp = null;
+function renderComposities() {
+  const list = $('composities-list'); if (!list) return; list.innerHTML = '';
+  const items = collections.composities.data || [];
+  const wrap = el('div', { class: 'item-block' });
+  items.forEach((it, i) => {
+    const row = el('div', { class: 'item-row' });
+    const c = el('div', { class: 'item-content' });
+    c.appendChild(el('div', { class: 'item-title' }, it.title || '(geen titel)'));
+    c.appendChild(el('div', { class: 'item-meta' }, '🔗 ' + (it.link || '(geen bestand)')));
+    const acts = el('div', { class: 'item-actions' });
+    const up = el('button', { class: 'small', title: 'Naar boven', onclick: () => moveComp(i, -1) }, '↑');
+    if (i === 0) up.disabled = true;
+    const dn = el('button', { class: 'small', title: 'Naar beneden', onclick: () => moveComp(i, +1) }, '↓');
+    if (i === items.length - 1) dn.disabled = true;
+    acts.appendChild(up); acts.appendChild(dn);
+    acts.appendChild(el('button', { class: 'small', onclick: () => openCompDialog(i) }, 'Bewerken'));
+    acts.appendChild(el('button', { class: 'small danger', onclick: () => deleteComp(i) }, 'Verwijderen'));
+    row.appendChild(c); row.appendChild(acts); wrap.appendChild(row);
+  });
+  if (items.length === 0) wrap.appendChild(el('div', { class: 'item-row' }, '(geen composities)'));
+  list.appendChild(wrap);
+}
+function moveComp(i, dir) {
+  const d = collections.composities.data; const ni = i + dir;
+  if (ni < 0 || ni >= d.length) return;
+  [d[i], d[ni]] = [d[ni], d[i]];
+  collections.composities.dirty = true; renderComposities();
+}
+function deleteComp(i) {
+  const it = collections.composities.data[i];
+  if (!confirm('Compositie verwijderen?\n\n' + (it.title || ''))) return;
+  collections.composities.data.splice(i, 1);
+  collections.composities.dirty = true; renderComposities();
+}
+function openCompDialog(i) {
+  editingComp = i;
+  $('comp-dialog-title').textContent = (i === null) ? 'Nieuwe compositie' : 'Compositie bewerken';
+  const it = (i === null) ? { title:'', link:'' } : collections.composities.data[i];
+  $('cf-title').value = it.title || ''; $('cf-link').value = it.link || '';
+  $('cf-upload-status').textContent = ''; $('cf-upload').value = '';
+  $('comp-dialog').showModal();
+}
+$('cf-cancel').onclick = () => $('comp-dialog').close();
+$('cf-save').onclick = () => {
+  const title = $('cf-title').value.trim(); const link = $('cf-link').value.trim();
+  if (!title) { alert('Vul een titel in.'); return; }
+  const item = { title, link };
+  if (editingComp === null) collections.composities.data.unshift(item);
+  else collections.composities.data[editingComp] = item;
+  collections.composities.dirty = true; $('comp-dialog').close(); renderComposities();
+};
+$('cf-upload-btn').onclick = () => {
+  const f = $('cf-upload').files[0];
+  if (!f) { alert('Kies eerst een PDF.'); return; }
+  uploadFileToFolder(f, 'Composities', $('cf-upload-status'), $('cf-link'));
+};
+$('composities-add').onclick = () => openCompDialog(null);
+$('composities-save').onclick = () => saveCollection('composities');
+$('composities-download').onclick = () => downloadCollection('composities');
+
+/* ===== BLOCKS (shared by CV and Lessen) ===== */
+let editingCvBlock = null, editingLessenBlock = null, currentBlockTarget = null;
+function stripHtml(s) { return String(s || '').replace(/<[^>]+>/g, ''); }
+function renderBlocksList(containerId, blocks, onEdit, onDelete, onMove) {
+  const list = $(containerId); if (!list) return; list.innerHTML = '';
+  const wrap = el('div', { class: 'item-block' });
+  blocks.forEach((b, i) => {
+    const row = el('div', { class: 'item-row' });
+    const c = el('div', { class: 'item-content' });
+    c.appendChild(el('div', { class: 'item-title' }, b.type === 'h2' ? 'Tussenkop' : 'Alinea'));
+    const prev = el('div'); prev.innerHTML = b.content || '<em>(leeg)</em>';
+    prev.style.fontSize = '0.95em'; c.appendChild(prev);
+    const acts = el('div', { class: 'item-actions' });
+    const up = el('button', { class: 'small', title: 'Naar boven', onclick: () => onMove(i, -1) }, '↑');
+    if (i === 0) up.disabled = true;
+    const dn = el('button', { class: 'small', title: 'Naar beneden', onclick: () => onMove(i, +1) }, '↓');
+    if (i === blocks.length - 1) dn.disabled = true;
+    acts.appendChild(up); acts.appendChild(dn);
+    acts.appendChild(el('button', { class: 'small', onclick: () => onEdit(i) }, 'Bewerken'));
+    acts.appendChild(el('button', { class: 'small danger', onclick: () => onDelete(i) }, 'Verwijderen'));
+    row.appendChild(c); row.appendChild(acts); wrap.appendChild(row);
+  });
+  if (blocks.length === 0) wrap.appendChild(el('div', { class: 'item-row' }, '(geen blokken)'));
+  list.appendChild(wrap);
+}
+function openBlockDialog(target, index) {
+  currentBlockTarget = target;
+  if (target === 'cv') editingCvBlock = index; else editingLessenBlock = index;
+  const blocks = target === 'cv' ? collections.cv.data[currentCvLang].blocks
+                                  : collections.lessen.data.blocks;
+  const b = blocks[index];
+  $('block-dialog-title').textContent = 'Blok bewerken';
+  $('bf-type').value = b.type || 'p'; $('bf-content').value = b.content || '';
+  $('block-dialog').showModal();
+}
+function openNewBlockDialog(target, type) {
+  currentBlockTarget = target;
+  if (target === 'cv') editingCvBlock = -1; else editingLessenBlock = -1;
+  $('block-dialog-title').textContent = 'Nieuw blok';
+  $('bf-type').value = type || 'p'; $('bf-content').value = '';
+  $('block-dialog').showModal();
+}
+$('bf-cancel').onclick = () => $('block-dialog').close();
+$('bf-save').onclick = () => {
+  const block = { type: $('bf-type').value, content: $('bf-content').value.trim() };
+  if (!block.content) { alert('Tekst is leeg.'); return; }
+  if (currentBlockTarget === 'cv') {
+    const arr = collections.cv.data[currentCvLang].blocks;
+    if (editingCvBlock === -1) arr.push(block); else arr[editingCvBlock] = block;
+    collections.cv.dirty = true; $('block-dialog').close(); renderCv();
   } else {
-    state.data[yi].label = label;
-  }
-  state.dirty = true;
-  $('year-dialog').close();
-  render();
-};
-
-/* ---------- Delete handlers ---------- */
-function deleteEntry(yi, ri) {
-  const row = state.data[yi].rows[ri];
-  if (!confirm(`Concert verwijderen?\n\n${row.date}\n${(row.desc || '').slice(0, 120)}`)) return;
-  state.data[yi].rows.splice(ri, 1);
-  state.dirty = true;
-  render();
-}
-function deleteYear(yi) {
-  const year = state.data[yi];
-  const n = (year.rows || []).length;
-  if (!confirm(`Het hele blok "${year.label}" verwijderen?` +
-               (n > 0 ? ` Dit verwijdert ook ${n} concert(en).` : ''))) return;
-  state.data.splice(yi, 1);
-  state.dirty = true;
-  render();
-}
-
-/* ---------- Reordering ---------- */
-function moveEntry(yi, ri, direction) {
-  const rows = state.data[yi].rows;
-  const ni = ri + direction;
-  if (ni < 0 || ni >= rows.length) return;
-  [rows[ri], rows[ni]] = [rows[ni], rows[ri]];
-  state.dirty = true;
-  render();
-  // Keep this year-block expanded after re-render
-  const block = document.querySelectorAll('.year-block')[yi];
-  if (block) block.classList.add('expanded');
-}
-function moveYear(yi, direction) {
-  const ni = yi + direction;
-  if (ni < 0 || ni >= state.data.length) return;
-  [state.data[yi], state.data[ni]] = [state.data[ni], state.data[yi]];
-  state.dirty = true;
-  render();
-}
-
-/* ---------- Add year button ---------- */
-$('add-year').onclick = () => openYearDialog(null);
-
-/* ---------- Save / Download ---------- */
-$('save-github').onclick = async () => {
-  if (!getPat()) {
-    alert('Geen token ingesteld. Stel die in onder "Instellingen", of gebruik "Download" en upload het bestand handmatig.');
-    return;
-  }
-  const btn = $('save-github');
-  btn.disabled = true; btn.textContent = 'SHA ophalen…';
-  try {
-    // Always fetch a fresh SHA right before saving — robust against concurrent edits
-    // and means we never have to fetch SHA on load.
-    let sha;
-    try {
-      const res = await ghGet('agenda.json');
-      sha = res.sha;
-    } catch (err) {
-      throw new Error('Kon agenda.json niet bereiken via GitHub API. ' +
-        'Controleer de constanten REPO_OWNER en REPO_NAME bovenaan in editor.html, ' +
-        'en dat het token toegang heeft tot deze repository. Details: ' + err.message);
-    }
-    btn.textContent = 'Bezig met opslaan…';
-    const json = JSON.stringify(state.data, null, 2);
-    const result = await ghPut('agenda.json', utf8ToBase64(json),
-                               'Update agenda (via editor)', sha);
-    state.fileSha = result.content.sha;
-    state.dirty = false;
-    setStatus('Opgeslagen op GitHub. De website wordt binnen een paar minuten bijgewerkt.', 'success');
-  } catch (err) {
-    setStatus('Opslaan mislukt: ' + err.message, 'error');
-  } finally {
-    btn.disabled = false;
-    render();
+    const arr = collections.lessen.data.blocks;
+    if (editingLessenBlock === -1) arr.push(block); else arr[editingLessenBlock] = block;
+    collections.lessen.dirty = true; $('block-dialog').close(); renderLessen();
   }
 };
 
-$('download-json').onclick = () => {
-  const json = JSON.stringify(state.data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'agenda.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  setStatus('agenda.json gedownload. Sleep dit bestand op GitHub naar de map om de agenda online te zetten.', 'info');
-};
+/* ===== CV ===== */
+function renderCv() {
+  const cv = (collections.cv.data || {})[currentCvLang] || { title: '', blocks: [] };
+  $('cv-title').value = cv.title || '';
+  renderBlocksList('cv-blocks', cv.blocks || [],
+    (i) => openBlockDialog('cv', i),
+    (i) => deleteCvBlock(i),
+    (i, d) => moveCvBlock(i, d));
+}
+function moveCvBlock(i, dir) {
+  const b = collections.cv.data[currentCvLang].blocks;
+  const ni = i + dir; if (ni < 0 || ni >= b.length) return;
+  [b[i], b[ni]] = [b[ni], b[i]];
+  collections.cv.dirty = true; renderCv();
+}
+function deleteCvBlock(i) {
+  const b = collections.cv.data[currentCvLang].blocks[i];
+  if (!confirm('Blok verwijderen?\n\n' + stripHtml(b.content).slice(0, 120))) return;
+  collections.cv.data[currentCvLang].blocks.splice(i, 1);
+  collections.cv.dirty = true; renderCv();
+}
+$('cv-title').addEventListener('input', () => {
+  const cv = collections.cv.data && collections.cv.data[currentCvLang];
+  if (!cv) return;
+  cv.title = $('cv-title').value; collections.cv.dirty = true;
+});
+document.querySelectorAll('#tab-cv .sub-nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#tab-cv .sub-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCvLang = btn.dataset.cvlang;
+    renderCv();
+  });
+});
+$('cv-save').onclick = () => saveCollection('cv');
+$('cv-download').onclick = () => downloadCollection('cv');
 
-/* ---------- Tabs ---------- */
-document.querySelectorAll('nav button').forEach(btn => {
+/* ===== LESSEN ===== */
+function renderLessen() {
+  const l = collections.lessen.data || { title: '', blocks: [] };
+  $('lessen-title').value = l.title || '';
+  renderBlocksList('lessen-blocks', l.blocks || [],
+    (i) => openBlockDialog('lessen', i),
+    (i) => deleteLessenBlock(i),
+    (i, d) => moveLessenBlock(i, d));
+}
+function moveLessenBlock(i, dir) {
+  const b = collections.lessen.data.blocks;
+  const ni = i + dir; if (ni < 0 || ni >= b.length) return;
+  [b[i], b[ni]] = [b[ni], b[i]];
+  collections.lessen.dirty = true; renderLessen();
+}
+function deleteLessenBlock(i) {
+  const b = collections.lessen.data.blocks[i];
+  if (!confirm('Blok verwijderen?\n\n' + stripHtml(b.content).slice(0, 120))) return;
+  collections.lessen.data.blocks.splice(i, 1);
+  collections.lessen.dirty = true; renderLessen();
+}
+$('lessen-title').addEventListener('input', () => {
+  if (!collections.lessen.data) return;
+  collections.lessen.data.title = $('lessen-title').value;
+  collections.lessen.dirty = true;
+});
+$('lessen-save').onclick = () => saveCollection('lessen');
+$('lessen-download').onclick = () => downloadCollection('lessen');
+
+/* Wire up the +Alinea / +Tussenkop buttons for both CV and Lessen */
+document.querySelectorAll('[data-add]').forEach(btn => {
+  btn.addEventListener('click', () => openNewBlockDialog(btn.dataset.target, btn.dataset.add));
+});
+
+/* ===== MEER MUZIEK ===== */
+let editingMm = null;
+function renderMeermuziek() {
+  const list = $('meermuziek-list'); if (!list) return; list.innerHTML = '';
+  const items = collections.meermuziek.data || [];
+  const wrap = el('div', { class: 'item-block' });
+  items.forEach((it, i) => {
+    const row = el('div', { class: 'item-row' });
+    const c = el('div', { class: 'item-content' });
+    c.appendChild(el('div', { class: 'item-title' }, it.description || '(geen beschrijving)'));
+    c.appendChild(el('div', { class: 'item-meta' }, '🎵 ' + (it.file || '(geen bestand)')));
+    const acts = el('div', { class: 'item-actions' });
+    const up = el('button', { class: 'small', title: 'Naar boven', onclick: () => moveMm(i, -1) }, '↑');
+    if (i === 0) up.disabled = true;
+    const dn = el('button', { class: 'small', title: 'Naar beneden', onclick: () => moveMm(i, +1) }, '↓');
+    if (i === items.length - 1) dn.disabled = true;
+    acts.appendChild(up); acts.appendChild(dn);
+    acts.appendChild(el('button', { class: 'small', onclick: () => openMmDialog(i) }, 'Bewerken'));
+    acts.appendChild(el('button', { class: 'small danger', onclick: () => deleteMm(i) }, 'Verwijderen'));
+    row.appendChild(c); row.appendChild(acts); wrap.appendChild(row);
+  });
+  if (items.length === 0) wrap.appendChild(el('div', { class: 'item-row' },
+    '(nog geen fragmenten — de kop "Meer muziek" verschijnt pas op de site als er minstens één fragment is)'));
+  list.appendChild(wrap);
+}
+function moveMm(i, dir) {
+  const d = collections.meermuziek.data; const ni = i + dir;
+  if (ni < 0 || ni >= d.length) return;
+  [d[i], d[ni]] = [d[ni], d[i]];
+  collections.meermuziek.dirty = true; renderMeermuziek();
+}
+function deleteMm(i) {
+  const it = collections.meermuziek.data[i];
+  if (!confirm('Fragment verwijderen?\n\n' + (it.description || ''))) return;
+  collections.meermuziek.data.splice(i, 1);
+  collections.meermuziek.dirty = true; renderMeermuziek();
+}
+function openMmDialog(i) {
+  editingMm = i;
+  $('mm-dialog-title').textContent = (i === null) ? 'Nieuw fragment' : 'Fragment bewerken';
+  const it = (i === null) ? { description:'', file:'' } : collections.meermuziek.data[i];
+  $('mf-desc').value = it.description || ''; $('mf-file').value = it.file || '';
+  $('mf-upload-status').textContent = ''; $('mf-upload').value = '';
+  $('mm-dialog').showModal();
+}
+$('mf-cancel').onclick = () => $('mm-dialog').close();
+$('mf-save').onclick = () => {
+  const description = $('mf-desc').value.trim();
+  const file = $('mf-file').value.trim();
+  if (!description && !file) { alert('Vul beschrijving en/of bestand in.'); return; }
+  const item = { description, file };
+  if (editingMm === null) collections.meermuziek.data.push(item);
+  else collections.meermuziek.data[editingMm] = item;
+  collections.meermuziek.dirty = true; $('mm-dialog').close(); renderMeermuziek();
+};
+$('mf-upload-btn').onclick = () => {
+  const f = $('mf-upload').files[0];
+  if (!f) { alert('Kies eerst een MP3.'); return; }
+  uploadFileToFolder(f, 'Muziek', $('mf-upload-status'), $('mf-file'));
+};
+$('mm-add').onclick = () => openMmDialog(null);
+$('meermuziek-save').onclick = () => saveCollection('meermuziek');
+$('meermuziek-download').onclick = () => downloadCollection('meermuziek');
+
+/* ===== TABS ===== */
+document.querySelectorAll('nav > button').forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('nav > button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
     $('tab-' + btn.dataset.tab).classList.add('active');
   };
 });
 
-/* ---------- Settings ---------- */
+/* ===== SETTINGS ===== */
 function refreshPatStatus() {
-  const pat = getPat();
-  const status = $('pat-status');
+  const pat = getPat(); const status = $('pat-status');
   if (pat) {
-    status.innerHTML = '<span style="color: #080;">✓ Token bewaard in deze browser.</span>';
+    status.innerHTML = '<span style="color:#080;">✓ Token bewaard in deze browser.</span>';
     $('pat-input').value = '••••••••••••••••••••••••';
   } else {
-    status.innerHTML = '<span style="color: #888;">Geen token bewaard.</span>';
+    status.innerHTML = '<span style="color:#888;">Geen token bewaard.</span>';
     $('pat-input').value = '';
   }
 }
+async function testTokenAccess() {
+  const pat = getPat();
+  if (!pat) return { ok: false, msg: 'Geen token ingesteld.' };
+  try {
+    const userR = await fetch(GH_API + '/user', {
+      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
+    });
+    if (!userR.ok) return { ok: false, msg: `Token werkt niet (HTTP ${userR.status}).` };
+    const user = await userR.json();
+    const repoR = await fetch(`${GH_API}/repos/${REPO_OWNER}/${REPO_NAME}`, {
+      headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + pat },
+    });
+    if (!repoR.ok) return { ok: false,
+      msg: `Token geldig (ingelogd als ${user.login}), maar geen toegang tot ${REPO_OWNER}/${REPO_NAME} (HTTP ${repoR.status}).` };
+    return { ok: true, msg: `✓ Token werkt. Ingelogd als ${user.login}, toegang tot ${REPO_OWNER}/${REPO_NAME}.` };
+  } catch (err) { return { ok: false, msg: 'Verbinding mislukt: ' + err.message }; }
+}
 $('pat-save').onclick = async () => {
   const v = $('pat-input').value.trim();
-  if (!v || v.startsWith('•')) {
-    alert('Plak eerst een echte token in het tekstvak.');
-    return;
-  }
-  setPat(v);
-  refreshPatStatus();
-  // Quick test: does the token actually work and reach the configured repo?
-  const status = $('pat-status');
-  status.innerHTML = 'Token testen…';
+  if (!v || v.startsWith('•')) { alert('Plak eerst een echte token in het tekstvak.'); return; }
+  setPat(v); refreshPatStatus();
+  const status = $('pat-status'); status.innerHTML = 'Token testen…';
   const result = await testTokenAccess();
-  if (result.ok) {
-    status.innerHTML = '<span style="color: #080;">' + result.msg + '</span>';
-  } else {
-    status.innerHTML = '<span style="color: #a00;">⚠ ' + result.msg + '</span>';
-  }
-  loadAgenda();
+  status.innerHTML = '<span style="color:' + (result.ok ? '#080' : '#a00') + ';">'
+                   + (result.ok ? '' : '⚠ ') + result.msg + '</span>';
+  loadAll();
 };
 $('pat-clear').onclick = () => {
   if (!confirm('Token uit deze browser verwijderen?')) return;
-  setPat('');
-  refreshPatStatus();
-  loadAgenda();
+  setPat(''); refreshPatStatus(); loadAll();
 };
 $('pat-input').addEventListener('focus', () => {
   if ($('pat-input').value.startsWith('•')) $('pat-input').value = '';
 });
 
-/* ---------- Init ---------- */
+/* ===== INIT ===== */
+function renderAll() {
+  renderAgenda(); renderComposities(); renderCv(); renderLessen(); renderMeermuziek();
+}
 refreshPatStatus();
-loadAgenda();
-</script>
+loadAll();
 
+</script>
 </body>
 </html>
